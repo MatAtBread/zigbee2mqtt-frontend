@@ -24,7 +24,18 @@ const RangeEditor: FunctionComponent<RangeProps & Omit<InputHTMLAttributes<HTMLI
     const showRange = min !== undefined && max !== undefined;
     return <div className="input-group align-items-center">
         {!minimal && steps ? <EnumEditor values={steps} onChange={onChange} value={currentValue} /> : null}
-        {showRange ? <input
+        {showRange ? (minimal ? <input
+            min={min}
+            max={max}
+            step={valueStep}
+            type="number"
+            className="form-range form-control border-0"
+            value={currentValue}
+            onChange={e => setCurrentValue(e.target.valueAsNumber)}
+            onTouchEnd={(() => onChange(currentValue))}
+            onMouseUp={(() => onChange(currentValue))}
+            {...rest}
+        /> : <input
             min={min}
             max={max}
             step={valueStep}
@@ -35,7 +46,7 @@ const RangeEditor: FunctionComponent<RangeProps & Omit<InputHTMLAttributes<HTMLI
             onTouchEnd={(() => onChange(currentValue))}
             onMouseUp={(() => onChange(currentValue))}
             {...rest}
-        /> : null}
+        />) : null}
         {(!minimal || !showRange) && <input
             type="number"
             className={cx("form-control", { 'ms-1': showRange })}

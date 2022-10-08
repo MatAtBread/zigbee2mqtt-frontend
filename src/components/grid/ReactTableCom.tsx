@@ -11,6 +11,8 @@ interface Props {
   id: string;
   columns: Array<Column<any>>;
   data: Array<any>;
+  noFilter?: boolean;
+  noRowNumbers?: boolean;
 }
 
 type GlobalFilterProps = {
@@ -75,7 +77,7 @@ const stateReducer = (
 
 
 
-export const Table: React.FC<Props> = ({ columns, data, id }) => {
+export const Table: React.FC<Props> = ({ columns, data, id, noFilter, noRowNumbers}) => {
   const initialState = local.getItem<Partial<TableState<Record<string, unknown>>>>(getStorageKey(id)) || {};
   const {
     getTableProps,
@@ -105,18 +107,21 @@ export const Table: React.FC<Props> = ({ columns, data, id }) => {
     <table {...getTableProps()} className="table responsive">
       <thead>
         <tr>
-          <th colSpan={visibleColumns.length + 1}>
+          {
+            noFilter ? '' : (<th colSpan={visibleColumns.length + 1}>
             <GlobalFilter
               globalFilter={state.globalFilter}
               setGlobalFilter={setGlobalFilter}
             />
-          </th>
+          </th>)
+          }
+          
         </tr>
         {headerGroups.map((headerGroup: HeaderGroup<Record<string, unknown>>) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
-            <th className="text-nowrap">#</th>
+            {noRowNumbers ? undefined : <th className="text-nowrap">#</th>}
             {headerGroup.headers.map(column => (
-              <th className="text-nowrap" {...column.getHeaderProps(column.getSortByToggleProps())}>
+              <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                 <span className={cx({ 'btn-link me-1': column.canSort })}>{column.render('Header')}</span>
                 <span>
                   <i className={cx('fa', {
@@ -137,7 +142,7 @@ export const Table: React.FC<Props> = ({ columns, data, id }) => {
             prepareRow(row);
             return (
               <tr {...row.getRowProps()}>
-                <td><div className="font-weight-bold">{i + 1}</div></td>
+                {noRowNumbers ? '' : <td><div className="font-weight-bold">{i + 1}</div></td>}
                 {row.cells.map(cell => <td {...cell.getCellProps()}>{cell.render('Cell')}</td>)}
               </tr>
             )

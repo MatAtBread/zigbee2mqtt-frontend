@@ -7,6 +7,7 @@ import DashboardDevice from "../dashboard-page/DashboardDevice";
 import { DashboardFeatureWrapper } from "../dashboard-page/DashboardFeatureWrapper";
 import { StateApi } from "../../actions/StateApi";
 import { onlyValidFeaturesForScenes } from "../device-page/scene";
+import { isNotNullish } from "../../utils";
 
 
 type DeviceGroupRowProps = {
@@ -52,7 +53,7 @@ export function DeviceGroupRow(props: DeviceGroupRowProps): JSX.Element {
     if (device.definition) {
         filteredFeatures = ((device.definition.exposes ?? []) as GenericExposedFeature[])
             .map((e: GenericExposedFeature | CompositeFeature) => onlyValidFeaturesForScenes(e, deviceState))
-            .filter(f => f);
+            .filter(isNotNullish);
     }
 
     return <DashboardDevice

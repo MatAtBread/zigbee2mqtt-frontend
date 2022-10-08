@@ -48,7 +48,6 @@ export function DevicesTable(props: DevicesTableProps & Pick<DeviceApi, 'configu
         },
     }] : [];
     const columns = [
-
         {
             id: 'pic',
             Header: t('pic'),

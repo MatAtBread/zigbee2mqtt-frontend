@@ -191,3 +191,7 @@ export const assertUnreachable = (_x: never): void => undefined;
 
 
 export const isIframe = (): boolean => window.location !== window.parent.location;
+
+export function isNotNullish<T>(o: T | undefined | null): o is T {
+    return o !== undefined && o !==null;
+}
