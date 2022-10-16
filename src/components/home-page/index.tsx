@@ -26,17 +26,8 @@ import style from "../zigbee/style.module.css";
 
 type PropsFromStore = Pick<GlobalState, 'devices' | 'deviceStates' | 'bridgeInfo'>;
 
-const genericRendererIgnoredNames = [
-    'linkquality', 'battery', 'battery_low',
-    'illuminance_lux', 'color_temp_startup', 'voltage',
-    'strength', 'color_options', 'warning', 'position',
-    'operation_mode', 'operation_mode2', 'programming_mode',
-    'options', 'programming',
-    'schedule_monday', 'schedule_tuesday', 'schedule_wednesday',
-    'schedule_thursday', 'schedule_friday', 'schedule_saturday', 'schedule_sunday',
-    'holiday_mode_date'];
-
-const defaultWhitelistFeatureNames = ["force","position","local_temperature","current_heating_setpoint","running_state","preset"];//['state', 'brightness', 'color_temp', 'mode', 'sound', 'occupancy', 'tamper', 'alarm', 'current_heating_setpoint', 'force'];
+const defaultWhitelistFeatureNames = ["force","position","local_temperature","current_heating_setpoint","running_state","preset"];
+//['state', 'brightness', 'color_temp', 'mode', 'sound', 'occupancy', 'tamper', 'alarm', 'current_heating_setpoint', 'force'];
 
 export const onlyValidFeatures = (whitelistFeatureNames: string[], nested = 0) =>
     (feature: GenericExposedFeature | CompositeFeature, deviceState: DeviceState = {} as DeviceState): GenericExposedFeature | CompositeFeature | false => {
