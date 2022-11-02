@@ -7,8 +7,8 @@
     "sideEffects": [
         "*.css"
     ],
-    "name": "zigbee2mqtt-frontend",
-    "version": "0.6.114",
+    "name": "z2m-frontend",
+    "version": "1.0.2",
     "license": "GPL-3.0",
     "scripts": {
         "build": "vite build",
@@ -17,7 +17,7 @@
         "postversion": "git push && git push --tags",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
         "pretty": "prettier --write \"./**/*.{js,jsx,json}\"",
-        "postinstall": "husky install",
+        "_postinstall": "husky install",
         "prepublishOnly": "pinst --disable",
         "postpublish": "pinst --enable"
     },
@@ -105,7 +105,6 @@
     "main": "index.js",
     "husky": {
         "hooks": {
-            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
         }
     },
     "repository": {
