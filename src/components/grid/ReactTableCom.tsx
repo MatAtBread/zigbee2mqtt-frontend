@@ -13,6 +13,7 @@ interface Props {
   data: Array<any>;
   noFilter?: boolean;
   noRowNumbers?: boolean;
+  noHeader?: boolean;
 }
 
 type GlobalFilterProps = {
@@ -77,7 +78,7 @@ const stateReducer = (
 
 
 
-export const Table: React.FC<Props> = ({ columns, data, id, noFilter, noRowNumbers}) => {
+export const Table: React.FC<Props> = ({ columns, data, id, noFilter, noRowNumbers, noHeader}) => {
   const initialState = local.getItem<Partial<TableState<Record<string, unknown>>>>(getStorageKey(id)) || {};
   const {
     getTableProps,
@@ -105,6 +106,7 @@ export const Table: React.FC<Props> = ({ columns, data, id, noFilter, noRowNumbe
 
   return (
     <table {...getTableProps()} className="table responsive">
+      {noHeader ? undefined: (
       <thead>
         <tr>
           {
@@ -136,6 +138,7 @@ export const Table: React.FC<Props> = ({ columns, data, id, noFilter, noRowNumbe
         ))}
 
       </thead>
+      )}
       <tbody {...getTableBodyProps()}>
         {rows.map(
           (row, i) => {

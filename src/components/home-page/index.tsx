@@ -1,17 +1,17 @@
-import React, { FunctionComponent, PropsWithChildren, useState } from 'react';
+import React, { FunctionComponent, PropsWithChildren } from 'react';
 
 
 import { connect } from 'unistore/react';
 
 import { pageState } from '../../pagestate';
 
-import { DeviceState, CompositeFeature, GenericExposedFeature, FeatureAccessMode, Device, Paths } from '../../types';
+import { DeviceState, CompositeFeature, GenericExposedFeature } from '../../types';
 import actions from '../../actions/actions';
 import { StateApi } from "../../actions/StateApi";
 import { GlobalState } from '../../store';
 import { genDeviceDetailsLink } from '../../utils';
 
-import { isClimateFeature, isLightFeature } from '../device-page/type-guards';
+import { isClimateFeature, isEnumFeature, isLightFeature } from '../device-page/type-guards';
 import groupBy from "lodash/groupBy";
 
 import { filterDeviceByFeatures } from '../groups/DeviceGroupRow';
@@ -26,8 +26,14 @@ import style from "../zigbee/style.module.css";
 
 type PropsFromStore = Pick<GlobalState, 'devices' | 'deviceStates' | 'bridgeInfo'>;
 
-const defaultWhitelistFeatureNames = ["force","position","local_temperature","current_heating_setpoint","running_state","preset"];
-//['state', 'brightness', 'color_temp', 'mode', 'sound', 'occupancy', 'tamper', 'alarm', 'current_heating_setpoint', 'force'];
+const defaultWhitelistFeatureNames = {
+    "preset":["eco","comfort"],
+    "local_temperature": true,
+    "current_heating_setpoint": true,
+    "running_state": true,
+    "force": true,
+    "position": true
+};
 
 export const onlyValidFeatures = (whitelistFeatureNames: string[], nested = 0) =>
     (feature: GenericExposedFeature | CompositeFeature, deviceState: DeviceState = {} as DeviceState): GenericExposedFeature | CompositeFeature | false => {
@@ -44,19 +50,7 @@ export const onlyValidFeatures = (whitelistFeatureNames: string[], nested = 0) =
         return whitelistFeatureNames[0] === '*' || whitelistFeatureNames.includes(name) ? filteredOutFeature : false;
     }
 
-const filterKeys: Paths<Device>[] = [
-    'friendly_name',
-    'description',
-    'ieee_address',
-    'manufacturer',
-    'type',
-    'power_source',
-    'model_id',
-    'definition.model',
-    'definition.vendor'
-];
-
-function findFeature(property: string, features: (GenericExposedFeature | CompositeFeature)[]) {
+function findFeature(property: string, features: (GenericExposedFeature | CompositeFeature)[]): GenericExposedFeature | CompositeFeature | undefined {
     for (const f of features) {
         if (f.property === property) {
             return f;
@@ -80,7 +74,7 @@ const Dashboard: React.FC<PropsFromStore & StateApi> = (props) => {
         </div>
     }
 
-    const selectedFeatures = pageState()?.home?.featureNames || defaultWhitelistFeatureNames;
+    const selectedFeatures = Object.keys(defaultWhitelistFeatureNames);
     const { t } = useTranslation(["featureNames"])
     const filteredDeviceFeatures = filterDeviceByFeatures(devices, deviceStates, onlyValidFeatures(selectedFeatures));
     const columns = [{
@@ -96,28 +90,30 @@ const Dashboard: React.FC<PropsFromStore & StateApi> = (props) => {
     },
     ...selectedFeatures.map(name => ({
         id: name,
-        Header: t(name),
+        Header: t(name).split(/\s+/)[0],
         Cell: ({ row: { index, original }, column: { id } }) => {
             const feature = findFeature(id, filteredDeviceFeatures[index].filteredFeatures);
-            return feature ? (<>
-                <Feature feature={feature}
+            if (Array.isArray(defaultWhitelistFeatureNames[id]) && feature && isEnumFeature(feature)) { 
+                feature.values = defaultWhitelistFeatureNames[id];
+            }
+            return feature ? (<Feature feature={feature}
                     device={original.device}
                     deviceState={original.deviceState}
                     featureWrapperClass={FeatureWrapper}
-                    minimal={true}
+                    minimal={id !== 'preset'}
                     onChange={(endpoint, value) =>
-                        setDeviceState(filteredDeviceFeatures[index].device.friendly_name, value)
+                       setDeviceState(filteredDeviceFeatures[index].device.friendly_name, value)
                     }
                     onRead={(endpoint, value) =>
                         getDeviceState(filteredDeviceFeatures[index].device.friendly_name, value)
                     }
-                />
-            </>) : (<></>)
+                />) : (<></>)
         }
     }))];
 
     return <div className="table-responsive">
         <Table
+            noHeader={true}
             noFilter={true}
             noRowNumbers={true}
             id={DEVICES_GLOBAL_NAME}
