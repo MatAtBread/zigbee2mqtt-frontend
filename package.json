@@ -104,8 +104,7 @@
     },
     "main": "index.js",
     "husky": {
-        "hooks": {
-        }
+        "hooks": {}
     },
     "repository": {
         "type": "git",
